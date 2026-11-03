@@ -17,9 +17,11 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -52,6 +54,7 @@ import com.example.ui.screens.BreakBubbleScreen
 import com.example.ui.screens.CategoriesScreen
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.HistoryScreen
+import com.example.ui.screens.PrivacyScreen
 import com.example.ui.theme.CyberCyan
 import com.example.ui.theme.DarkBorder
 import com.example.ui.theme.DarkSurface
@@ -148,6 +151,18 @@ fun AntiBolhaApp(viewModel: AntiBolhaViewModel) {
                         )
                     }
                 },
+                actions = {
+                    IconButton(
+                        onClick = { currentTabIndex = 5 },
+                        modifier = Modifier.testTag("btn_privacy")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = "Privacidade",
+                            tint = if (currentTabIndex == 5) CyberCyan else TextSecondary
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = DarkSurface,
                     titleContentColor = TextPrimary
@@ -226,6 +241,7 @@ fun AntiBolhaApp(viewModel: AntiBolhaViewModel) {
                     onBreakBubble = { platform -> viewModel.breakBubble(context, platform) },
                     onGoalChange = { viewModel.setBurstGoal(it) }
                 )
+                5 -> PrivacyScreen()
             }
         }
     }
