@@ -4,7 +4,9 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import android.content.ActivityNotFoundException
 import com.example.data.AppDatabase
+import com.example.data.BurstPrefs
 import com.example.data.model.BubbleCategory
 import com.example.data.model.BubbleKeyword
 import com.example.data.model.CategoryWithKeywords
@@ -59,6 +61,75 @@ class AntiBolhaViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _lastBurstMessage = MutableStateFlow<String?>(null)
     val lastBurstMessage: StateFlow<String?> = _lastBurstMessage.asStateFlow()
+
+    // ---- Camada 1: "Me tire da bolha" ----
+    private val burstPrefs = BurstPrefs(application)
+
+    private val _burstToday = MutableStateFlow(burstPrefs.countToday())
+    val burstToday: StateFlow<Int> = _burstToday.asStateFlow()
+
+    private val _burstGoal = MutableStateFlow(burstPrefs.getGoal())
+    val burstGoal: StateFlow<Int> = _burstGoal.asStateFlow()
+
+    private val _lastTopic = MutableStateFlow<String?>(null)
+    val lastTopic: StateFlow<String?> = _lastTopic.asStateFlow()
+
+    private val _lastTopicCategory = MutableStateFlow<String?>(null)
+    val lastTopicCategory: StateFlow<String?> = _lastTopicCategory.asStateFlow()
+
+    private val _breakMessage = MutableStateFlow<String?>(null)
+    val breakMessage: StateFlow<String?> = _breakMessage.asStateFlow()
+
+    fun setBurstGoal(value: Int) {
+        burstPrefs.setGoal(value)
+        _burstGoal.value = burstPrefs.getGoal()
+    }
+
+    /**
+     * Sorteia um tema (dando preferência aos menos usados e evitando repetir o último)
+     * e abre a busca na plataforma escolhida. Só conta na meta se o app abriu.
+     */
+    fun breakBubble(context: Context, platformChoice: String) {
+        viewModelScope.launch {
+            _burstToday.value = burstPrefs.countToday() // atualiza se o dia virou
+
+            val pick = withContext(Dispatchers.IO) {
+                val candidates = dao.getCategoriesWithKeywordsSync()
+                    .filter { it.category.isEnabled }
+                    .flatMap { cat ->
+                        cat.keywords.filter { it.isEnabled }.map { cat.category to it }
+                    }
+                val withoutLast = candidates.filter { it.second.term != _lastTopic.value }
+                val pool = if (withoutLast.isNotEmpty()) withoutLast else candidates
+                pool.sortedBy { it.second.usageCount }.take(5).randomOrNull()
+            }
+
+            if (pick == null) {
+                _breakMessage.value = "Nenhum tema ativo. Ative uma categoria na aba Bolhas."
+                return@launch
+            }
+
+            val (category, keyword) = pick
+            val platform = if (platformChoice == "ALEATORIO") {
+                listOf("YOUTUBE", "TIKTOK", "INSTAGRAM").random()
+            } else platformChoice
+
+            try {
+                context.startActivity(
+                    NoiseEngine.createOpenInAppIntent(context, keyword.term, platform)
+                )
+                withContext(Dispatchers.IO) {
+                    dao.incrementKeywordUsage(keyword.id, System.currentTimeMillis())
+                }
+                _lastTopic.value = keyword.term
+                _lastTopicCategory.value = category.name
+                _burstToday.value = burstPrefs.increment()
+                _breakMessage.value = null
+            } catch (e: ActivityNotFoundException) {
+                _breakMessage.value = "Não consegui abrir o link. Tente outra plataforma."
+            }
+        }
+    }
 
     init {
         // Ensure initial database seeding occurs

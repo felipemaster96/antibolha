@@ -186,6 +186,12 @@ class NoiseEngine(private val bubbleDao: BubbleDao) {
                 "YOUTUBE" -> Uri.parse("https://www.youtube.com/results?search_query=$encoded")
                 "TIKTOK" -> Uri.parse("https://www.tiktok.com/search?q=$encoded")
                 "GOOGLE" -> Uri.parse("https://www.google.com/search?q=$encoded")
+                "INSTAGRAM" -> {
+                    // Instagram não tem busca por link; hashtag é o caminho mais estável
+                    val tag = term.filter { it.isLetterOrDigit() }.lowercase()
+                    Uri.parse("https://www.instagram.com/explore/tags/" +
+                        URLEncoder.encode(tag, StandardCharsets.UTF_8.toString()) + "/")
+                }
                 else -> Uri.parse("https://duckduckgo.com/?q=$encoded")
             }
             return Intent(Intent.ACTION_VIEW, uri).apply {

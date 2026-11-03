@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.BubbleChart
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,6 +48,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.NewBubbleDialog
 import com.example.ui.screens.ArchitectureFaqScreen
+import com.example.ui.screens.BreakBubbleScreen
 import com.example.ui.screens.CategoriesScreen
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.HistoryScreen
@@ -63,6 +65,7 @@ sealed class Screen(val index: Int, val title: String, val icon: ImageVector, va
     object Categories : Screen(1, "Bolhas", Icons.Default.BubbleChart, "nav_categories")
     object History : Screen(2, "Histórico", Icons.Default.History, "nav_history")
     object Architecture : Screen(3, "Estratégia", Icons.Default.MenuBook, "nav_strategy")
+    object BreakBubble : Screen(4, "Sair", Icons.Default.Explore, "nav_break_bubble")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,6 +100,11 @@ fun AntiBolhaApp(viewModel: AntiBolhaViewModel) {
     val intervalMinutes by viewModel.currentIntervalMinutes.collectAsStateWithLifecycle()
     val isBurstRunning by viewModel.isBurstRunning.collectAsStateWithLifecycle()
     val lastBurstMessage by viewModel.lastBurstMessage.collectAsStateWithLifecycle()
+    val burstToday by viewModel.burstToday.collectAsStateWithLifecycle()
+    val burstGoal by viewModel.burstGoal.collectAsStateWithLifecycle()
+    val lastTopic by viewModel.lastTopic.collectAsStateWithLifecycle()
+    val lastTopicCategory by viewModel.lastTopicCategory.collectAsStateWithLifecycle()
+    val breakMessage by viewModel.breakMessage.collectAsStateWithLifecycle()
 
     // BackHandler: if not in Dashboard, go back to Dashboard
     BackHandler(enabled = currentTabIndex != 0) {
@@ -107,7 +115,8 @@ fun AntiBolhaApp(viewModel: AntiBolhaViewModel) {
         Screen.Dashboard,
         Screen.Categories,
         Screen.History,
-        Screen.Architecture
+        Screen.Architecture,
+        Screen.BreakBubble
     )
 
     Scaffold(
@@ -208,6 +217,15 @@ fun AntiBolhaApp(viewModel: AntiBolhaViewModel) {
                     onClearLogs = { viewModel.clearHistory() }
                 )
                 3 -> ArchitectureFaqScreen()
+                4 -> BreakBubbleScreen(
+                    countToday = burstToday,
+                    goal = burstGoal,
+                    lastTopic = lastTopic,
+                    lastCategory = lastTopicCategory,
+                    message = breakMessage,
+                    onBreakBubble = { platform -> viewModel.breakBubble(context, platform) },
+                    onGoalChange = { viewModel.setBurstGoal(it) }
+                )
             }
         }
     }
