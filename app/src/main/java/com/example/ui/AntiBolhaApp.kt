@@ -108,6 +108,7 @@ fun AntiBolhaApp(viewModel: AntiBolhaViewModel) {
     val lastTopic by viewModel.lastTopic.collectAsStateWithLifecycle()
     val lastTopicCategory by viewModel.lastTopicCategory.collectAsStateWithLifecycle()
     val breakMessage by viewModel.breakMessage.collectAsStateWithLifecycle()
+    val noiseEngineEnabled by viewModel.noiseEngineEnabled.collectAsStateWithLifecycle()
 
     // BackHandler: if not in Dashboard, go back to Dashboard
     BackHandler(enabled = currentTabIndex != 0) {
@@ -217,7 +218,10 @@ fun AntiBolhaApp(viewModel: AntiBolhaViewModel) {
                     onToggleService = { ctx -> viewModel.toggleService(ctx) },
                     onUpdateInterval = { ctx, mins -> viewModel.updateInterval(ctx, mins) },
                     onTriggerBurst = { count -> viewModel.triggerBurstNoise(count) },
-                    onNavigateToHistory = { currentTabIndex = 2 }
+                    onNavigateToHistory = { currentTabIndex = 2 },
+                    noiseEngineEnabled = noiseEngineEnabled,
+                    onGoToBreakBubble = { currentTabIndex = 4 },
+                    onOpenAdvanced = { currentTabIndex = 5 }
                 )
                 1 -> CategoriesScreen(
                     categoriesWithKeywords = categoriesWithKeywords,
@@ -241,7 +245,12 @@ fun AntiBolhaApp(viewModel: AntiBolhaViewModel) {
                     onBreakBubble = { platform -> viewModel.breakBubble(context, platform) },
                     onGoalChange = { viewModel.setBurstGoal(it) }
                 )
-                5 -> PrivacyScreen()
+                5 -> PrivacyScreen(
+                    noiseEngineEnabled = noiseEngineEnabled,
+                    onNoiseEngineChange = { enabled ->
+                        viewModel.setNoiseEngineEnabled(context, enabled)
+                    }
+                )
             }
         }
     }

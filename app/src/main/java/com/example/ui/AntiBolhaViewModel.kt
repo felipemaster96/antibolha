@@ -80,6 +80,18 @@ class AntiBolhaViewModel(application: Application) : AndroidViewModel(applicatio
     private val _breakMessage = MutableStateFlow<String?>(null)
     val breakMessage: StateFlow<String?> = _breakMessage.asStateFlow()
 
+    // ---- Modo avançado: NoiseEngine HTTP (desligado por padrão) ----
+    private val _noiseEngineEnabled = MutableStateFlow(burstPrefs.isNoiseEngineEnabled())
+    val noiseEngineEnabled: StateFlow<Boolean> = _noiseEngineEnabled.asStateFlow()
+
+    fun setNoiseEngineEnabled(context: Context, enabled: Boolean) {
+        burstPrefs.setNoiseEngineEnabled(enabled)
+        _noiseEngineEnabled.value = enabled
+        if (!enabled && isServiceRunning.value) {
+            NoiseGeneratorService.stopService(context)
+        }
+    }
+
     fun setBurstGoal(value: Int) {
         burstPrefs.setGoal(value)
         _burstGoal.value = burstPrefs.getGoal()
@@ -139,6 +151,7 @@ class AntiBolhaViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun toggleService(context: Context) {
+        if (!_noiseEngineEnabled.value && !isServiceRunning.value) return
         if (isServiceRunning.value) {
             NoiseGeneratorService.stopService(context)
         } else {
@@ -156,7 +169,7 @@ class AntiBolhaViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun triggerBurstNoise(count: Int = 1) {
-        if (_isBurstRunning.value) return
+        if (_isBurstRunning.value || !_noiseEngineEnabled.value) return
         viewModelScope.launch {
             _isBurstRunning.value = true
             _lastBurstMessage.value = "Disparando $count consulta(s) de ruído..."

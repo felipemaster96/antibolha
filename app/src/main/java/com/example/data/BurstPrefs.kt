@@ -26,6 +26,13 @@ class BurstPrefs(context: Context) {
         return newCount
     }
 
+    /** Modo avançado (NoiseEngine HTTP). Desligado por padrão. */
+    fun isNoiseEngineEnabled(): Boolean = prefs.getBoolean("noise_engine_enabled", false)
+
+    fun setNoiseEngineEnabled(value: Boolean) {
+        prefs.edit().putBoolean("noise_engine_enabled", value).apply()
+    }
+
     fun getGoal(): Int = prefs.getInt("goal", 3)
 
     fun setGoal(value: Int) {

@@ -73,7 +73,10 @@ fun DashboardScreen(
     onToggleService: (Context) -> Unit,
     onUpdateInterval: (Context, Int) -> Unit,
     onTriggerBurst: (Int) -> Unit,
-    onNavigateToHistory: () -> Unit
+    onNavigateToHistory: () -> Unit,
+    noiseEngineEnabled: Boolean = true,
+    onGoToBreakBubble: () -> Unit = {},
+    onOpenAdvanced: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val totalTags = categories.sumOf { it.keywords.size }
@@ -86,6 +89,12 @@ fun DashboardScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+      if (!noiseEngineEnabled) {
+        AdvancedOffContent(
+            onGoToBreakBubble = onGoToBreakBubble,
+            onOpenAdvanced = onOpenAdvanced
+        )
+      } else {
         // Top status headline
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -413,6 +422,65 @@ fun DashboardScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+      }
+    }
+}
+
+@Composable
+private fun AdvancedOffContent(
+    onGoToBreakBubble: () -> Unit,
+    onOpenAdvanced: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(24.dp))
+    Text(
+        text = "Seu painel",
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = TextPrimary
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+        text = "A forma mais eficaz de sair da bolha é buscar você mesmo coisas novas " +
+            "e limpar o que as plataformas guardaram sobre você.",
+        color = TextSecondary,
+        fontSize = 14.sp
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+    Button(
+        onClick = onGoToBreakBubble,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = CyberCyan,
+            contentColor = Color(0xFF032830)
+        )
+    ) {
+        Text("Me tire da bolha", fontWeight = FontWeight.Bold)
+    }
+    Spacer(modifier = Modifier.height(24.dp))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        shape = RoundedCornerShape(16.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Robô de ruído (avançado)",
+                color = TextPrimary,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Desligado. Faz buscas automáticas em segundo plano. " +
+                    "Para ligar, vá em Privacidade > Avançado.",
+                color = TextSecondary,
+                fontSize = 13.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(onClick = onOpenAdvanced) {
+                Text("Abrir Privacidade", color = CyberCyan)
+            }
+        }
     }
 }
 

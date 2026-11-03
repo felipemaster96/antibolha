@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -129,8 +131,12 @@ private fun openShortcut(context: Context, s: PrivacyShortcut): Boolean {
 }
 
 @Composable
-fun PrivacyScreen() {
+fun PrivacyScreen(
+    noiseEngineEnabled: Boolean = false,
+    onNoiseEngineChange: (Boolean) -> Unit = {}
+) {
     val context = LocalContext.current
+    var showWarning by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -164,6 +170,77 @@ fun PrivacyScreen() {
             PrivacyCard(shortcut = shortcut, context = context)
             Spacer(modifier = Modifier.height(12.dp))
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "Avançado",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = TextPrimary
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = DarkSurface),
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, DarkBorder)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                        Text(
+                            "Robô de ruído (NoiseEngine)",
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            "Faz buscas automáticas em segundo plano. Desligado por padrão.",
+                            color = TextSecondary,
+                            fontSize = 13.sp
+                        )
+                    }
+                    Switch(
+                        checked = noiseEngineEnabled,
+                        onCheckedChange = { wantOn ->
+                            if (wantOn) showWarning = true else onNoiseEngineChange(false)
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+
+    if (showWarning) {
+        AlertDialog(
+            onDismissRequest = { showWarning = false },
+            title = { Text("Ligar o robô de ruído?") },
+            text = {
+                Text(
+                    "• Ele envia buscas automáticas para Wikipédia, DuckDuckGo e Wikidata, " +
+                        "não para YouTube, TikTok ou Instagram. Por isso não muda o que " +
+                        "essas plataformas recomendam para você.\n\n" +
+                        "• Usa internet e bateria e mantém uma notificação fixa enquanto roda.\n\n" +
+                        "• Esse tipo de tráfego automático pode ir contra os termos de uso de " +
+                        "alguns serviços."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showWarning = false
+                    onNoiseEngineChange(true)
+                }) { Text("Ligar mesmo assim") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showWarning = false }) { Text("Cancelar") }
+            }
+        )
     }
 }
 
