@@ -128,7 +128,10 @@ class AntiBolhaViewModel(application: Application) : AndroidViewModel(applicatio
 
             try {
                 context.startActivity(
-                    NoiseEngine.createOpenInAppIntent(context, keyword.term, platform)
+                    NoiseEngine.createOpenInAppIntent(
+                        context, keyword.term, platform,
+                        category.instagramTag.ifBlank { category.name }
+                    )
                 )
                 withContext(Dispatchers.IO) {
                     dao.incrementKeywordUsage(keyword.id, System.currentTimeMillis())
@@ -136,7 +139,13 @@ class AntiBolhaViewModel(application: Application) : AndroidViewModel(applicatio
                 _lastTopic.value = keyword.term
                 _lastTopicCategory.value = category.name
                 _burstToday.value = burstPrefs.increment()
-                _breakMessage.value = null
+                _breakMessage.value = if (platform == "INSTAGRAM") {
+                    "Instagram não tem busca por link. Abri a hashtag #" +
+                        NoiseEngine.instagramHashtag(
+                            keyword.term, category.instagramTag.ifBlank { category.name }
+                        ) +
+                        ", do tema da categoria."
+                } else null
             } catch (e: ActivityNotFoundException) {
                 _breakMessage.value = "Não consegui abrir o link. Tente outra plataforma."
             }

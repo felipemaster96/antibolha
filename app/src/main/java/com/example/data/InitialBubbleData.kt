@@ -1,224 +1,268 @@
 package com.example.data
 
 import com.example.data.model.BubbleCategory
-import com.example.data.model.BubbleKeyword
 
 data class SeedCategory(
     val category: BubbleCategory,
     val keywords: List<String>
 )
 
+/**
+ * =====================  CATÁLOGO DE TEMAS  =====================
+ *
+ * Aqui ficam as categorias e os termos que o app sorteia.
+ *
+ * COMO EDITAR (sem saber programar):
+ *  - Mudar um termo: troque o texto entre aspas.
+ *  - Tirar um termo: apague a linha inteira dele.
+ *  - Adicionar um termo: copie uma linha de termo, cole embaixo e mude o texto.
+ *    Atenção: todo termo termina com vírgula, MENOS o último de cada categoria.
+ *  - Nova categoria: copie um bloco inteiro "cat( ... )", cole embaixo e troque tudo.
+ *    Cada bloco termina com ")," e o último bloco da lista termina só com ")".
+ *
+ * Cada categoria tem:
+ *   nome, emoji, cor (código #RRGGBB), hashtag do Instagram (UMA palavra, sem #),
+ *   descrição e, depois, os termos de busca.
+ *
+ * DICAS:
+ *  - Termos curtos e naturais (como você digitaria na busca) dão mais resultados.
+ *  - Use acentos normalmente.
+ *  - A hashtag precisa existir no Instagram. Teste digitando #palavra lá antes.
+ *
+ * IMPORTANTE: o app só lê este arquivo quando o banco de dados está vazio.
+ * Depois de mudar aqui, aumente o número "version" em AppDatabase.kt (2 vira 3)
+ * para o app recriar o catálogo. Isso apaga categorias que você criou dentro do app.
+ * Para mudanças pequenas, é mais fácil editar direto na aba "Bolhas" do app.
+ * =================================================================
+ */
 object InitialBubbleData {
+
+    private fun cat(
+        nome: String,
+        emoji: String,
+        cor: String,
+        hashtag: String,
+        descricao: String,
+        vararg termos: String
+    ) = SeedCategory(
+        category = BubbleCategory(
+            name = nome,
+            description = descricao,
+            iconEmoji = emoji,
+            colorHex = cor,
+            instagramTag = hashtag
+        ),
+        keywords = termos.toList()
+    )
+
     val seedData: List<SeedCategory> = listOf(
-        SeedCategory(
-            category = BubbleCategory(
-                id = 1,
-                name = "Mecânica Pesada & Tratores",
-                description = "Manutenção diesel, sistemas hidráulicos agrícolas e maquinário pesado",
-                iconEmoji = "🚜",
-                colorHex = "#F59E0B"
-            ),
-            keywords = listOf(
-                "regulagem de valvulas motor diesel trator",
-                "bomba injetora bosch reparo bicos",
-                "sistema hidraulico 3 pontos trator valtra",
-                "substituicao embreagem dupla massey ferguson",
-                "esteira de colheitadeira lubrificacao rolamentos",
-                "filtro decantador combustivel diesel s10",
-                "torque cabecote motor perkins 4 cilindros",
-                "esquema eletrico alternador case ih",
-                "diferencial traseiro trator john deere folga",
-                "reforma tomada de potencia tdp agricola"
-            )
+
+        cat(
+            "Apicultura & Abelhas Nativas", "🐝", "#F59E0B", "apicultura",
+            "Criação de abelhas com e sem ferrão e a vida dentro da colmeia",
+            "como começar na apicultura",
+            "criação de abelha jataí",
+            "meliponicultura para iniciantes",
+            "como funciona uma colmeia",
+            "colheita de mel passo a passo",
+            "abelhas sem ferrão do Brasil",
+            "caixa racional para abelhas nativas",
+            "importância da polinização"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 2,
-                name = "Astrofísica & Mecânica Quântica",
-                description = "Cosmologia, partículas fundamentais e física teórica avançada",
-                iconEmoji = "🌌",
-                colorHex = "#8B5CF6"
-            ),
-            keywords = listOf(
-                "emaranhamento quantico paradoxo epr bell",
-                "espectro de emissao hidrogenio serie balmer",
-                "fusao termonuclear estelar ciclo cno",
-                "horizonte de eventos buraco negro de kerr",
-                "radiacao hawking entropia bekenstein",
-                "telescopio james webb espectroscopia infravermelho",
-                "bóson de higgs mecanismo quebra de simetria",
-                "materia escura curvas de rotacao galactica",
-                "relatividade geral equacoes de campo einstein",
-                "interferometria ligo deteccao ondas gravitacionais"
-            )
+
+        cat(
+            "Bonsai & Jardinagem", "🌱", "#10B981", "bonsai",
+            "Cultivo de plantas, bonsai, orquídeas e hortas pequenas",
+            "bonsai para iniciantes",
+            "como podar bonsai",
+            "poda de formação em bonsai",
+            "substrato para bonsai",
+            "jardim vertical como fazer",
+            "cultivo de suculentas",
+            "como cuidar de orquídeas",
+            "horta em apartamento"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 3,
-                name = "Jardinagem, Bonsai & Botânica",
-                description = "Cultivo vegetal avançado, substratos técnicos e arte do bonsai",
-                iconEmoji = "🌱",
-                colorHex = "#10B981"
-            ),
-            keywords = listOf(
-                "poda apical pinheiro negro japones bonsai",
-                "preparo substrato organico akadama kiryu",
-                "adubacao bokashi fermentado proporcoes npk",
-                "propagacao por estaquia estacas lenhosas azaleia",
-                "enxertia em fenda cheia macieiras porta enxerto",
-                "hidroponia caseira solucao nutritiva condutividade",
-                "aramacao galhos coniferas tecnica de torcao",
-                "controle fungico calda bordalesa concentracao",
-                "rega e drenagem suculentas deserto echeveria",
-                "compostagem termofilica relacao carbono nitrogenio"
-            )
+
+        cat(
+            "Astronomia & Física", "🔭", "#8B5CF6", "astronomia",
+            "Universo, partículas e as ideias grandes da física",
+            "como funcionam os buracos negros",
+            "mecânica quântica explicada",
+            "o que é matéria escura",
+            "telescópio para iniciantes",
+            "fases da lua explicadas",
+            "como medir distâncias no universo",
+            "teoria da relatividade simples",
+            "exoplanetas descobertas recentes"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 4,
-                name = "Culinária Étnica & Fermentação",
-                description = "Fermentação milenar, micróbios benéficos e gastronomia regional tradicional",
-                iconEmoji = "🍲",
-                colorHex = "#EC4899"
-            ),
-            keywords = listOf(
-                "kimchi tradicional coreano pasta gochugaru repolho",
-                "fermento natural levain sourdough hidratacao 75",
-                "miso artesanal koji fermentacao arroz soja",
-                "scoby kombucha primeira fermentacao acido acetico",
-                "chucrute alemao fermentacao liofilizada lactobacillus",
-                "defumacao a frio salmao cura sal marinho",
-                "molho garum peixe receita romana antiga fermentada",
-                "tempeh indonesio cultura rhizopus oligosporus",
-                "queijo artesanal coalho canastra afinacao fungos",
-                "pao pita autentico forno alta temperatura bolha de ar"
-            )
+
+        cat(
+            "Tratores & Mecânica Pesada", "🚜", "#D97706", "tratores",
+            "Motores diesel, hidráulica e máquinas agrícolas",
+            "como funciona um motor diesel",
+            "manutenção básica de trator",
+            "como funciona sistema hidráulico",
+            "como funciona uma colheitadeira",
+            "restauração de trator antigo",
+            "como funciona injeção diesel",
+            "mecânica de motor para iniciantes",
+            "máquinas agrícolas antigas"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 5,
-                name = "Tricô, Crochê & Tecelagem",
-                description = "Trabalhos manuais têxteis, fiação tradicional e pontos clássicos",
-                iconEmoji = "🧶",
-                colorHex = "#06B6D4"
-            ),
-            keywords = listOf(
-                "ponto arroz duplo trico agulhas circulares",
-                "tecelagem manual em tear de pente lico urdidura",
-                "fiacao de la merino em fuso de mao torcao",
-                "receita amigurumi ponto baixo espiral aumentos",
-                "tingimento natural tecidos casca de cebola mordente",
-                "ponto cruz grafico medieval tapeçaria jacquard",
-                "bloqueio pecas trico com vapor e alfinetes",
-                "bainha aberta desfiada bordado richelieu",
-                "cordao i cord duas agulhas acabamento",
-                "la virgem cardacao de fibras vegetais linho"
-            )
+
+        cat(
+            "Fermentação & Culinária Regional", "🍞", "#EF4444", "fermentacao",
+            "Pães, queijos, conservas fermentadas e comidas regionais",
+            "pão de fermentação natural",
+            "como fazer kimchi",
+            "kombucha caseira",
+            "queijo artesanal em casa",
+            "culinária regional brasileira",
+            "como fazer missô",
+            "iogurte caseiro fermentado",
+            "pratos típicos do nordeste"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 6,
-                name = "Numismática & Moedas Históricas",
-                description = "Estudo arqueológico de moedas, ligas metálicas e impérios antigos",
-                iconEmoji = "🪙",
-                colorHex = "#EAB308"
-            ),
-            keywords = listOf(
-                "denario de prata imperador augusto cunhagem romana",
-                "moeda 960 reis carimbo de minas patacão",
-                "patina natural conservacao moedas de bronze antigas",
-                "dobrao de ouro d joao v 1724 casa da moeda bahia",
-                "graduacao numismatica estado de conservacao flor de cunho",
-                "tetradracma atenas coruja prata helenistica",
-                "moeda colonial holandesa brasil recife obsidional",
-                "pesagem de precisao moedas antigas teor de prata",
-                "catalogo bentes moedas brasileiras variantes raras",
-                "identificacao bordo serrilhado cunho descentralizado"
-            )
+
+        cat(
+            "Tricô, Crochê & Tecelagem", "🧶", "#EC4899", "trico",
+            "Trabalhos manuais com fios, lã e tear",
+            "tricô para iniciantes",
+            "crochê amigurumi passo a passo",
+            "pontos de tricô",
+            "como fiar lã",
+            "tecelagem em tear",
+            "macramê para iniciantes",
+            "bordado livre para iniciantes",
+            "história da tapeçaria"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 7,
-                name = "Apicultura & Abelhas Nativas",
-                description = "Meliponicultura, criação de abelhas sem ferrão e biologia da colmeia",
-                iconEmoji = "🐝",
-                colorHex = "#F97316"
-            ),
-            keywords = listOf(
-                "criacao de abelha jataí caixa racional modelo inpa",
-                "manejo meliponario mandacaia divisao de enxame",
-                "alimentacao artificial xarope invertido meliponas",
-                "propolis verde producao e extrato alcoolico",
-                "fumigador apicultura serragem de eucalipto acendimento",
-                "cera de abelha alveolada laminacao para melgueira",
-                "rainha africana postura geleia real enxameacao",
-                "armadilha garrafa pet captura abelhas nativas mirim",
-                "colheita de mel sucção a vacuo bomba de melipona",
-                "polinizacao cruzada especies nativas mata atlantica"
-            )
+
+        cat(
+            "Numismática & História Antiga", "🪙", "#EAB308", "numismatica",
+            "Moedas, cédulas e o que elas contam sobre impérios antigos",
+            "moedas antigas do Brasil",
+            "como identificar moeda rara",
+            "história do dinheiro",
+            "moedas romanas",
+            "como limpar moeda antiga",
+            "cédulas raras do Brasil",
+            "achados arqueológicos de moedas",
+            "impérios antigos história"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 8,
-                name = "Engenharia Ferroviária & Locomotivas",
-                description = "Infraestrutura de trilhos, sistemas de sinalização e tração pesada",
-                iconEmoji = "🚂",
-                colorHex = "#3B82F6"
-            ),
-            keywords = listOf(
-                "dormentes de concreto protendido fixacao pandrol",
-                "freio a ar comprimido westinghouse valvula tripla",
-                "truque ferroviario bitola mista vagao hopper",
-                "locomotiva diesel eletrica ge ac44 motor de tracao",
-                "aparelho de mudanca de via amv agulha e jacare",
-                "solda aluminotermica trilho continuo trc",
-                "sinalizacao ctc controle de trafego centralizado",
-                "catenaria alimentacao aerea pantografo 25kv",
-                "perfil de roda ferroviaria friso desgaste conico",
-                "lastro de brita ferrovia desguarnecedora de via"
-            )
+
+        cat(
+            "Ferrovias & Trens", "🚂", "#64748B", "ferrovias",
+            "Locomotivas, trilhos, sinalização e ferreomodelismo",
+            "história das ferrovias no Brasil",
+            "como funciona locomotiva a vapor",
+            "ferreomodelismo para iniciantes",
+            "trens mais rápidos do mundo",
+            "como funciona a sinalização ferroviária",
+            "estrada de ferro Madeira-Mamoré",
+            "locomotiva diesel elétrica como funciona",
+            "passeio de maria fumaça"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 9,
-                name = "Marcenaria Tradicional & Madeira",
-                description = "Juntas tradicionais japonesas, afiação fina e ferramentas manuais",
-                iconEmoji = "🪚",
-                colorHex = "#D97706"
-            ),
-            keywords = listOf(
-                "encaixe rabo de andorinha manual serra dozuki",
-                "afiacao formoes oire nomi pedra d'agua grano 8000",
-                "plaina japonesa kanna ajuste de cunha e contracunha",
-                "junta de madeira kanawa tsugi carpintaria tradicional",
-                "acabamento oleo de tungue puro cura polimerizacao",
-                "bancada de marceneiro moxon morsa de fuso duplo",
-                "raspadeira de gabinete corte rebarba fio afiado",
-                "madeira peroba rosa de demolicao plainamento",
-                "graminho de corte regulagem de precisao madeira macica",
-                "cera de carnauba e abelha polimento acabamento acetinado"
-            )
+
+        cat(
+            "Marcenaria & Madeira", "🪚", "#92400E", "marcenaria",
+            "Ferramentas manuais, encaixes e acabamento em madeira",
+            "marcenaria para iniciantes",
+            "encaixes japoneses em madeira",
+            "como afiar formão",
+            "tipos de madeira e usos",
+            "como fazer um banco de madeira",
+            "como usar plaina manual",
+            "acabamento verniz em madeira",
+            "ferramentas manuais de marcenaria"
         ),
-        SeedCategory(
-            category = BubbleCategory(
-                id = 10,
-                name = "Ornitologia & Aves Silvestres",
-                description = "Bioacústica, rotas migratórias e ecologia de aves continentais",
-                iconEmoji = "🦅",
-                colorHex = "#14B8A6"
-            ),
-            keywords = listOf(
-                "espectrograma bioacustica canto do uirapuru verdadeiro",
-                "identificacao rapina gaviao real ninho dossel",
-                "rotas migratorias falcao peregrino anilhamento",
-                "binoculo prisma porro 8x42 observacao florestal",
-                "dimorfismo sexual tangara saira sete cores",
-                "nidificacao joao de barro estrutura concha argila",
-                "guia de campo aves do pantanal e cerrado plumagem",
-                "microfone parabolico gravador som ambiente passaros",
-                "comportamento lek corte nupcial danca tangara",
-                "censo de aves florestais metodologia ponto de escuta"
-            )
+
+        cat(
+            "Aves & Observação da Natureza", "🦜", "#06B6D4", "aves",
+            "Aves silvestres, cantos, migração e observação em campo",
+            "observação de aves para iniciantes",
+            "aves do Pantanal",
+            "canto de pássaros brasileiros",
+            "migração de aves",
+            "ninho de joão-de-barro",
+            "binóculo para observar aves",
+            "aves do cerrado",
+            "fotografia de aves"
+        ),
+
+        cat(
+            "Música & Instrumentos", "🎻", "#A855F7", "lutheria",
+            "Como os instrumentos funcionam e a música de diferentes tradições",
+            "como funciona um violino",
+            "história da música erudita",
+            "construção de violão lutheria",
+            "música modal explicada",
+            "instrumentos tradicionais brasileiros",
+            "como afinar cavaquinho",
+            "como funciona uma orquestra",
+            "música folclórica nordestina"
+        ),
+
+        cat(
+            "Geologia & Minerais", "🪨", "#78716C", "geologia",
+            "Rochas, cristais, vulcões, fósseis e cavernas",
+            "como se formam os cristais",
+            "tipos de rochas",
+            "como funcionam os vulcões",
+            "como se formam os fósseis",
+            "mineralogia para iniciantes",
+            "terremotos explicados",
+            "cavernas e espeleologia",
+            "pedras preciosas do Brasil"
+        ),
+
+        cat(
+            "Idiomas & Linguística", "🗣️", "#14B8A6", "linguistica",
+            "Origem das línguas, escritas antigas e curiosidades das palavras",
+            "origem das línguas",
+            "como aprender latim",
+            "etimologia de palavras",
+            "línguas indígenas do Brasil",
+            "alfabetos do mundo",
+            "como funciona o esperanto",
+            "escrita cuneiforme",
+            "dialetos do português"
+        ),
+
+        cat(
+            "Oceanos & Vida Marinha", "🌊", "#0EA5E9", "vidamarinha",
+            "Mar profundo, marés, corais e animais marinhos",
+            "vida marinha em águas profundas",
+            "como funcionam as marés",
+            "recifes de corais",
+            "comportamento das baleias",
+            "tubarões curiosidades",
+            "mergulho livre para iniciantes",
+            "correntes marítimas explicadas",
+            "importância do plâncton"
+        ),
+
+        cat(
+            "Xadrez & Jogos de Estratégia", "♟️", "#6366F1", "xadrez",
+            "Xadrez, go, damas e raciocínio estratégico",
+            "xadrez para iniciantes",
+            "aberturas de xadrez",
+            "finais de xadrez básicos",
+            "história do xadrez",
+            "partidas famosas de xadrez",
+            "jogo de go para iniciantes",
+            "estratégias de damas",
+            "táticas de xadrez"
+        ),
+
+        cat(
+            "Fotografia Analógica & Cinema Antigo", "📷", "#F43F5E", "fotografiaanalogica",
+            "Filmes, câmeras antigas e a história da imagem",
+            "fotografia analógica para iniciantes",
+            "como revelar filme em casa",
+            "câmeras antigas",
+            "história do cinema mudo",
+            "lentes manuais vintage",
+            "cianotipia como fazer",
+            "história da fotografia",
+            "câmera pinhole caseira"
         )
     )
 }

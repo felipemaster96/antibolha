@@ -12,10 +12,12 @@ import com.example.data.model.NoiseLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 @Database(
     entities = [BubbleCategory::class, BubbleKeyword::class, NoiseLog::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -47,18 +49,23 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Trava: impede que duas partes do app semeiem o banco ao mesmo tempo (duplicava tudo)
+        private val seedMutex = Mutex()
+
         suspend fun seedDatabase(dao: BubbleDao) {
-            val count = dao.getCategoryCount()
-            if (count == 0) {
-                InitialBubbleData.seedData.forEach { seed ->
-                    val categoryId = dao.insertCategory(seed.category.copy(id = 0))
-                    val keywords = seed.keywords.map { term ->
-                        BubbleKeyword(
-                            categoryId = categoryId,
-                            term = term
-                        )
+            seedMutex.withLock {
+                val count = dao.getCategoryCount()
+                if (count == 0) {
+                    InitialBubbleData.seedData.forEach { seed ->
+                        val categoryId = dao.insertCategory(seed.category.copy(id = 0))
+                        val keywords = seed.keywords.map { term ->
+                            BubbleKeyword(
+                                categoryId = categoryId,
+                                term = term
+                            )
+                        }
+                        dao.insertKeywords(keywords)
                     }
-                    dao.insertKeywords(keywords)
                 }
             }
         }

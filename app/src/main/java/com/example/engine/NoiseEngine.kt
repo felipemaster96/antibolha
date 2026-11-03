@@ -180,7 +180,36 @@ class NoiseEngine(private val bubbleDao: BubbleDao) {
     private data class TargetSpec(val name: String, val url: String)
 
     companion object {
-        fun createOpenInAppIntent(context: Context, term: String, platform: String): Intent {
+        private val stopWords = setOf(
+            "de", "da", "do", "das", "dos", "para", "com", "sem", "em",
+            "na", "no", "nas", "nos", "por", "uma", "uns", "umas"
+        )
+
+        private fun normalize(text: String): String =
+            java.text.Normalizer.normalize(text.lowercase(), java.text.Normalizer.Form.NFD)
+                .replace(Regex("\\p{Mn}+"), "")
+
+        private fun meaningfulWords(text: String): List<String> =
+            normalize(text).split(Regex("[^a-z0-9]+")).filter { w ->
+                w.length >= 4 && w !in stopWords && !w.all { it.isDigit() }
+            }
+
+        /**
+         * Frases longas viram hashtags que não existem (#regulagemdevalvulasmotor...).
+         * Por isso usamos UMA palavra: a primeira do nome da categoria (se houver),
+         * senão a maior palavra do termo.
+         */
+        fun instagramHashtag(term: String, hint: String? = null): String =
+            hint?.let { meaningfulWords(it).firstOrNull() }
+                ?: meaningfulWords(term).maxByOrNull { it.length }
+                ?: normalize(term).filter { it.isLetterOrDigit() }
+
+        fun createOpenInAppIntent(
+            context: Context,
+            term: String,
+            platform: String,
+            hashtagHint: String? = null
+        ): Intent {
             val encoded = URLEncoder.encode(term, StandardCharsets.UTF_8.toString())
             val uri = when (platform.uppercase()) {
                 "YOUTUBE" -> Uri.parse("https://www.youtube.com/results?search_query=$encoded")
@@ -188,7 +217,7 @@ class NoiseEngine(private val bubbleDao: BubbleDao) {
                 "GOOGLE" -> Uri.parse("https://www.google.com/search?q=$encoded")
                 "INSTAGRAM" -> {
                     // Instagram não tem busca por link; hashtag é o caminho mais estável
-                    val tag = term.filter { it.isLetterOrDigit() }.lowercase()
+                    val tag = instagramHashtag(term, hashtagHint)
                     Uri.parse("https://www.instagram.com/explore/tags/" +
                         URLEncoder.encode(tag, StandardCharsets.UTF_8.toString()) + "/")
                 }

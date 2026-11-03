@@ -12,5 +12,6 @@ data class BubbleCategory(
     val iconEmoji: String,
     val colorHex: String,
     val isEnabled: Boolean = true,
+    val instagramTag: String = "",
     val createdAt: Long = System.currentTimeMillis()
 )
